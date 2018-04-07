@@ -11,6 +11,7 @@ import tensorflow as tf
 import numpy as np
 import codecs
 import regex
+from pprint import pprint
 
 def load_de_vocab():
     vocab = [line.split()[0] for line in codecs.open('preprocessed/de.vocab.tsv', 'r', 'utf-8').read().splitlines() if int(line.split()[1])>=hp.min_cnt]
