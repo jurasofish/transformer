@@ -14,6 +14,7 @@ import regex
 from pprint import pprint
 
 def load_de_vocab():
+    # Create and return dict mappings of word to id and id to word. ID is a int.
     vocab = [line.split()[0] for line in codecs.open('preprocessed/de.vocab.tsv', 'r', 'utf-8').read().splitlines() if int(line.split()[1])>=hp.min_cnt]
     word2idx = {word: idx for idx, word in enumerate(vocab)}
     idx2word = {idx: word for idx, word in enumerate(vocab)}
@@ -25,31 +26,38 @@ def load_en_vocab():
     idx2word = {idx: word for idx, word in enumerate(vocab)}
     return word2idx, idx2word
 
-def create_data(source_sents, target_sents): 
+def create_data(source_sents, target_sents):
     de2idx, idx2de = load_de_vocab()
     en2idx, idx2en = load_en_vocab()
     
     # Index
     x_list, y_list, Sources, Targets = [], [], [], []
     for source_sent, target_sent in zip(source_sents, target_sents):
+        # x and y are lists of word IDs for a sentence pair.
         x = [de2idx.get(word, 1) for word in (source_sent + u" </S>").split()] # 1: OOV, </S>: End of Text
-        y = [en2idx.get(word, 1) for word in (target_sent + u" </S>").split()] 
+        y = [en2idx.get(word, 1) for word in (target_sent + u" </S>").split()]
         if max(len(x), len(y)) <=hp.maxlen:
-            x_list.append(np.array(x))
+            x_list.append(np.array(x)) # x_list is a list of source sentences
             y_list.append(np.array(y))
             Sources.append(source_sent)
             Targets.append(target_sent)
     
     # Pad      
+    # One row for each sentence, one column for each word.
     X = np.zeros([len(x_list), hp.maxlen], np.int32)
     Y = np.zeros([len(y_list), hp.maxlen], np.int32)
     for i, (x, y) in enumerate(zip(x_list, y_list)):
+        # Padding added to the right of each sentence.
         X[i] = np.lib.pad(x, [0, hp.maxlen-len(x)], 'constant', constant_values=(0, 0))
         Y[i] = np.lib.pad(y, [0, hp.maxlen-len(y)], 'constant', constant_values=(0, 0))
     
+    # X is a 2d vector where each row is a sentence. Each element in the row
+    # is the id of the word. Y is the corresponding target sentence.
     return X, Y, Sources, Targets
 
 def load_train_data():
+
+    # Create lists of every sentence in the source files. punctuation, numbers, etc. are removed by regex.
     de_sents = [regex.sub("[^\s\p{Latin}']", "", line) for line in codecs.open(hp.source_train, 'r', 'utf-8').read().split("\n") if line and line[0] != "<"]
     en_sents = [regex.sub("[^\s\p{Latin}']", "", line) for line in codecs.open(hp.target_train, 'r', 'utf-8').read().split("\n") if line and line[0] != "<"]
     
