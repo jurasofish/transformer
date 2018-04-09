@@ -45,7 +45,7 @@ def generate_x_y_data_v1(isTrain, batch_size):
         x1 = sig1[:seq_length]
         y1 = sig1[seq_length:]
 
-        x_ = np.array([x1, np.zeros_like(x1), np.ones_like(x1)])
+        x_ = np.array([x1, np.zeros_like(x1), np.ones_like(x1), np.ones_like(x1)*6])
         y_ = np.array([y1, np.ones_like(x1)])
         x_, y_ = x_.T, y_.T
 
@@ -89,8 +89,8 @@ class Graph():
             print('x: length', x_seq_length, 'and each time step has', x_var_count, 'variables')
             print('y: length', y_seq_length, 'and each time step has', y_var_count, 'variables')
             # x is a multi-variate time series; y is a single-variate time series.
-            self.x = tf.placeholder(tf.float32, shape=(None, sample_x.shape[1], sample_x.shape[0]))
-            self.y = tf.placeholder(tf.float32, shape=(None, sample_y.shape[1], sample_y.shape[0]))
+            self.x = tf.placeholder(tf.float32, shape=(None, x_seq_length, x_var_count))
+            self.y = tf.placeholder(tf.float32, shape=(None, y_seq_length, y_var_count))
             
             # define decoder inputs
             # Remove the final element from every sequence in y, 
