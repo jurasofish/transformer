@@ -132,7 +132,7 @@ class Graph():
                     same position in the sentence.
                     '''
                     self.enc += embedding(tf.tile(tf.expand_dims(tf.range(tf.shape(self.x)[1]), 0), [tf.shape(self.x)[0], 1]),
-                                      vocab_size=hp.maxlen, 
+                                      vocab_size=x_seq_length, 
                                       num_units=hp.hidden_units, 
                                       zero_pad=False, 
                                       scale=False,
