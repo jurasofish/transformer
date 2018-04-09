@@ -7,12 +7,16 @@ https://www.github.com/kyubyong/transformer
 '''
 from __future__ import print_function
 import tensorflow as tf
+import numpy as np
 
 from hyperparams import Hyperparams as hp
 from data_load import get_batch_data, load_de_vocab, load_en_vocab
 from modules import *
 import os, codecs
 from tqdm import tqdm
+from pprint import pprint
+import random, math
+import matplotlib.pyplot as plt
 
 class Graph():
     def __init__(self, is_training=True):
