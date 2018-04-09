@@ -260,8 +260,13 @@ if __name__ == '__main__':
 
     with tf.session(graph=g.graph) as sess:
         for t in range(10000): 
-            feed_dict = {'blah': 'placeholder'}
-            sess.run(g.train_op, feed_dict = feed_dict)
+            if(t % 10):
+                plot(sess, t)
+            x, y = generate_x_y_data_v1(isTrain = False, batch_size = 10)
+            # pprint(x)
+            feed_dict = {g.x: x, g.y: y}
+            _, loss = sess.run([g.train_op, g.mean_loss], feed_dict)
+            pprint(loss)
 
     
     print("Done")    
