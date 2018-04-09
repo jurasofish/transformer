@@ -169,11 +169,8 @@ class Graph():
             with tf.variable_scope("decoder"):
                 ## Embedding
                 # Same as input, essentially.
-                self.dec = embedding(self.decoder_inputs, 
-                                      vocab_size=len(en2idx), 
-                                      num_units=hp.hidden_units,
-                                      scale=True, 
-                                      scope="dec_embed")
+                '''Use conv1d to embed each time step, as per paper "attend and diagnose" '''
+                self.dec = embed_conv(inputs=self.decoder_inputs, num_units=hp.hidden_units, scope="dec_embed_conv")
                 
                 ## Positional Encoding
                 # Same as input, essentially.
@@ -186,7 +183,7 @@ class Graph():
                                       scope="dec_pe")
                 else:
                     self.dec += embedding(tf.tile(tf.expand_dims(tf.range(tf.shape(self.decoder_inputs)[1]), 0), [tf.shape(self.decoder_inputs)[0], 1]),
-                                      vocab_size=hp.maxlen, 
+                                      vocab_size=y_seq_length, 
                                       num_units=hp.hidden_units, 
                                       zero_pad=False, 
                                       scale=False,
