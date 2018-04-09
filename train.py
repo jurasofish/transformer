@@ -76,6 +76,27 @@ class Graph():
                 self.x = tf.placeholder(tf.int32, shape=(None, hp.maxlen))
                 self.y = tf.placeholder(tf.int32, shape=(None, hp.maxlen))
 
+        
+            sample_x, sample_y = generate_x_y_data_v1(True, 3)
+            pprint(sample_x)
+            pprint(sample_y)
+            x_seq_length = sample_x.shape[1]
+            x_var_count = sample_x.shape[2]
+            y_seq_length = len(sample_y[0, :])
+            y_var_count = sample_y.shape[2]
+            
+            # plot first example
+            fig, ax = plt.subplots()
+            ax.plot(list(range(x_seq_length)), sample_x[0, :, 0])
+            ax.plot(list(range(x_seq_length, x_seq_length + y_seq_length)), sample_y[0, :, 0])
+            plt.show()
+            
+            print('x: length', x_seq_length, 'and each time step has', x_var_count, 'variables')
+            print('y: length', y_seq_length)
+            # x is a multi-variate time series; y is a single-variate time series.
+            self.x = tf.placeholder(tf.int32, shape=(None, sample_x.shape[1], sample_x.shape[0]))
+            self.y = tf.placeholder(tf.int32, shape=(None, sample_y.shape[1]))
+            
             # define decoder inputs
             # Remove the final word from every sentence in y, 
             # then add the value 2 to the beginning of every sentence.
@@ -252,19 +273,12 @@ if __name__ == '__main__':
     
     # Construct graph
     g = Graph("train"); print("Graph loaded")
-    
-    # Start session
-    sv = tf.train.Supervisor(graph=g.graph, 
-                             logdir=hp.logdir,
-                             save_model_secs=0)
-    with sv.managed_session() as sess:
-        for epoch in range(1, hp.num_epochs+1): 
-            if sv.should_stop(): break
-            for step in tqdm(range(g.num_batch), total=g.num_batch, ncols=70, leave=False, unit='b'):
-                sess.run(g.train_op)
-                
-            gs = sess.run(g.global_step)   
-            sv.saver.save(sess, hp.logdir + '/model_epoch_%02d_gs_%d' % (epoch, gs))
+
+    with tf.session(graph=g.graph) as sess:
+        for t in range(10000): 
+            feed_dict = {'blah': 'placeholder'}
+            sess.run(g.train_op, feed_dict = feed_dict)
+
     
     print("Done")    
     
