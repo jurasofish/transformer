@@ -223,30 +223,17 @@ class Graph():
                 
             # Final linear projection
             # Final dimension is vocabulary size of english.
-            self.logits = tf.layers.dense(self.dec, len(en2idx))
-            # Select the most likely word from the final dimension
-            self.preds = tf.to_int32(tf.arg_max(self.logits, dimension=-1))
-            # tf.to_float(tf.not_equal([0, 1, 2, 3], 0)) = [0. 1. 1. 1.]
-            # self.istarget is a mask?
-            self.istarget = tf.to_float(tf.not_equal(self.y, 0))
-            # self.acc is a value from 0 to 1 of how many of the output words match y.
-            self.acc = tf.reduce_sum(tf.to_float(tf.equal(self.preds, self.y))*self.istarget)/ (tf.reduce_sum(self.istarget))
-            tf.summary.scalar('acc', self.acc)
-                
-            if is_training:  
-                # Loss
-                self.y_smoothed = label_smoothing(tf.one_hot(self.y, depth=len(en2idx)))
-                self.loss = tf.nn.softmax_cross_entropy_with_logits(logits=self.logits, labels=self.y_smoothed)
-                self.mean_loss = tf.reduce_sum(self.loss*self.istarget) / (tf.reduce_sum(self.istarget))
+            pprint(self.dec)
+            self.pred = tf.layers.dense(self.dec, y_var_count)
+            pprint(self.pred)
+            self.mean_loss = tf.reduce_sum(tf.square(self.pred - self.y))
+
+            self.optimizer = tf.train.AdamOptimizer(learning_rate=hp.lr, beta1=0.9, beta2=0.98, epsilon=1e-8)
+            self.train_op = self.optimizer.minimize(self.mean_loss)
                
-                # Training Scheme
-                self.global_step = tf.Variable(0, name='global_step', trainable=False)
-                self.optimizer = tf.train.AdamOptimizer(learning_rate=hp.lr, beta1=0.9, beta2=0.98, epsilon=1e-8)
-                self.train_op = self.optimizer.minimize(self.mean_loss, global_step=self.global_step)
-                   
-                # Summary 
-                tf.summary.scalar('mean_loss', self.mean_loss)
-                self.merged = tf.summary.merge_all()
+            # Summary 
+            tf.summary.scalar('mean_loss', self.mean_loss)
+            self.merged = tf.summary.merge_all()
 
 if __name__ == '__main__':                
     
