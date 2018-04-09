@@ -101,6 +101,7 @@ def embedding(inputs,
       [ 1.22204471 -0.96587461]]]    
     ```    
     '''
+    with tf.variable_scope(scope, reuse=reuse):
         '''
         Lookup table is simply a tensor with trainable values.
         It's initialized with some fancy values, but I suppose 
