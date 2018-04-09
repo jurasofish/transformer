@@ -18,6 +18,24 @@ from pprint import pprint
 import random, math
 import matplotlib.pyplot as plt
 
+def plot(sess, y):
+    x, y = generate_x_y_data_v1(isTrain = False, batch_size = 1)
+    feed_dict = {g.x: x, g.y: y}
+    pred = sess.run([g.pred], feed_dict)
+    pred = pred[0]
+    
+    # pprint(y)
+    # pprint(pred)
+    
+    fig, ax = plt.subplots()
+    ax.plot(list(range(10)), y[0, :, 0], color='red')
+    ax.plot(list(range(10)), pred[0, :, 0], color='green')
+    fig.savefig(str(t) + "test.png")
+    # plt.show()
+    
+    
+    
+
 
 def generate_x_y_data_v1(isTrain, batch_size):
     """
