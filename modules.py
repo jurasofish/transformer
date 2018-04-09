@@ -308,6 +308,21 @@ def feedforward(inputs,
         outputs = normalize(outputs)
     
     return outputs
+    
+    
+def embed_conv(inputs, 
+                num_units,
+                scope="embed_conv", 
+                reuse=None):
+    '''convolutional embedding'''
+    with tf.variable_scope(scope, reuse=reuse):
+        # Inner layer
+        params = {"inputs": inputs, "filters": num_units, "kernel_size": 1,
+                  "activation": tf.nn.relu, "use_bias": True}
+        outputs = tf.layers.conv1d(**params)
+    
+    return outputs
+    
 
 def label_smoothing(inputs, epsilon=0.1):
     '''Applies label smoothing. See https://arxiv.org/abs/1512.00567.

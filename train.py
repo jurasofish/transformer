@@ -100,22 +100,10 @@ class Graph():
                        
             # Encoder
             with tf.variable_scope("encoder"):
-                '''
-                self.x is a tensor of size [batch_size, maxlen].
-                Every row in self.x is a sentence of length maxlen,
-                and every sentence is right-padded with zeros.
-                The words in the sentences are represented by integers.
-                Embedding replaces the integers with matrices 
-                of size 1 x num_units = 1 x hp.hidden_units.
-                These matrices have values that are trainable, but
-                the same word integer always maps to the same matrix.
-                '''
-                # Embedding
-                self.enc = embedding(self.x, 
-                                      vocab_size=len(de2idx), 
-                                      num_units=hp.hidden_units, 
-                                      scale=True,
-                                      scope="enc_embed")
+                '''Use conv1d to embed each time step, as per paper "attend and diagnose" '''
+                print('before ff:', self.x)
+                self.enc = embed_conv(inputs=self.x, num_units=hp.hidden_units, scope="enc_embed_conv")
+                print('after ff: ', self.enc)
                 
                 ## Positional Encoding
                 if hp.sinusoid:
