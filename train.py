@@ -70,11 +70,6 @@ class Graph():
     def __init__(self, is_training=True):
         self.graph = tf.Graph()
         with self.graph.as_default():
-            if is_training:
-                self.x, self.y, self.num_batch = get_batch_data() # (N, T)
-            else: # inference
-                self.x = tf.placeholder(tf.int32, shape=(None, hp.maxlen))
-                self.y = tf.placeholder(tf.int32, shape=(None, hp.maxlen))
 
         
             sample_x, sample_y = generate_x_y_data_v1(True, 3)
