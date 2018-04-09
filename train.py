@@ -93,14 +93,11 @@ class Graph():
             self.y = tf.placeholder(tf.int32, shape=(None, sample_y.shape[1]))
             
             # define decoder inputs
-            # Remove the final word from every sentence in y, 
-            # then add the value 2 to the beginning of every sentence.
-            self.decoder_inputs = tf.concat((tf.ones_like(self.y[:, :1])*2, self.y[:, :-1]), -1) # 2:<S>
-
-            # Load vocabulary    
-            de2idx, idx2de = load_de_vocab()
-            en2idx, idx2en = load_en_vocab()
-            
+            # Remove the final element from every sequence in y, 
+            # then add the value 0 to the beginning of every sentence.
+            # in effect, shift the series one point to the right.
+            self.decoder_inputs = tf.concat((tf.ones_like(self.y[:, :1])*0, self.y[:, :-1]), -1)
+                       
             # Encoder
             with tf.variable_scope("encoder"):
                 '''
