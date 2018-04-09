@@ -89,8 +89,8 @@ class Graph():
             print('x: length', x_seq_length, 'and each time step has', x_var_count, 'variables')
             print('y: length', y_seq_length)
             # x is a multi-variate time series; y is a single-variate time series.
-            self.x = tf.placeholder(tf.int32, shape=(None, sample_x.shape[1], sample_x.shape[0]))
-            self.y = tf.placeholder(tf.int32, shape=(None, sample_y.shape[1]))
+            self.x = tf.placeholder(tf.float32, shape=(None, sample_x.shape[1], sample_x.shape[0]))
+            self.y = tf.placeholder(tf.float32, shape=(None, sample_y.shape[1]))
             
             # define decoder inputs
             # Remove the final element from every sequence in y, 
