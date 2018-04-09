@@ -96,7 +96,7 @@ class Graph():
             # Remove the final element from every sequence in y, 
             # then add the value 0 to the beginning of every sentence.
             # in effect, shift the series one point to the right.
-            self.decoder_inputs = tf.concat((tf.ones_like(self.y[:, :1])*0, self.y[:, :-1]), -1)
+            self.decoder_inputs = tf.concat((tf.zeros_like(self.y[:, :1, :]), self.y[:, :-1, :]), 1)
                        
             # Encoder
             with tf.variable_scope("encoder"):
