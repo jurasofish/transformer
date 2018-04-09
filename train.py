@@ -84,7 +84,7 @@ class Graph():
             fig, ax = plt.subplots()
             ax.plot(list(range(x_seq_length)), sample_x[0, :, 0])
             ax.plot(list(range(x_seq_length, x_seq_length + y_seq_length)), sample_y[0, :, 0])
-            plt.show()
+            # plt.show()
             
             print('x: length', x_seq_length, 'and each time step has', x_var_count, 'variables')
             print('y: length', y_seq_length)
