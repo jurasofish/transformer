@@ -258,7 +258,8 @@ if __name__ == '__main__':
     # Construct graph
     g = Graph("train"); print("Graph loaded")
 
-    with tf.session(graph=g.graph) as sess:
+    with tf.Session(graph=g.graph) as sess:
+        sess.run(tf.global_variables_initializer())
         for t in range(10000): 
             if(t % 10):
                 plot(sess, t)
