@@ -20,16 +20,20 @@ import matplotlib.pyplot as plt
 
 def plot(sess, y):
     x, y = generate_x_y_data_v1(isTrain = False, batch_size = 1)
-    feed_dict = {g.x: x, g.y: y}
-    pred = sess.run([g.pred], feed_dict)
-    pred = pred[0]
+    preds = np.zeros_like(y)
+    
+    
+    for j in range(g.y_seq_length):
+        feed_dict = {g.x: x, g.y: preds}
+        _preds = sess.run(g.pred, feed_dict)
+        preds[0, j, 0] = _preds[0, j, 0]
     
     # pprint(y)
     # pprint(pred)
     
     fig, ax = plt.subplots()
     ax.plot(list(range(10)), y[0, :, 0], color='red')
-    ax.plot(list(range(10)), pred[0, :, 0], color='green')
+    ax.plot(list(range(10)), preds[0, :, 0], color='green')
     fig.savefig(str(t) + "test.png")
     # plt.show()
     
@@ -97,6 +101,8 @@ class Graph():
             x_var_count = sample_x.shape[2]
             y_seq_length = len(sample_y[0, :])
             y_var_count = sample_y.shape[2]
+            
+            self.y_seq_length = y_seq_length
             
             # plot first example
             fig, ax = plt.subplots()
@@ -260,10 +266,10 @@ if __name__ == '__main__':
 
     with tf.Session(graph=g.graph) as sess:
         sess.run(tf.global_variables_initializer())
-        for t in range(10000): 
-            if(t % 10):
+        for t in range(100000): 
+            if(t % 100):
                 plot(sess, t)
-            x, y = generate_x_y_data_v1(isTrain = False, batch_size = 10)
+            x, y = generate_x_y_data_v1(isTrain = False, batch_size = 250)
             # pprint(x)
             feed_dict = {g.x: x, g.y: y}
             _, loss = sess.run([g.train_op, g.mean_loss], feed_dict)
