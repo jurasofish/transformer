@@ -249,9 +249,6 @@ class Graph():
                 self.merged = tf.summary.merge_all()
 
 if __name__ == '__main__':                
-    # Load vocabulary    
-    de2idx, idx2de = load_de_vocab()
-    en2idx, idx2en = load_en_vocab()
     
     # Construct graph
     g = Graph("train"); print("Graph loaded")
