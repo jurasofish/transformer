@@ -25,6 +25,8 @@ class Graph():
                 self.y = tf.placeholder(tf.int32, shape=(None, hp.maxlen))
 
             # define decoder inputs
+            # Remove the final word from every sentence in y, 
+            # then add the value 2 to the beginning of every sentence.
             self.decoder_inputs = tf.concat((tf.ones_like(self.y[:, :1])*2, self.y[:, :-1]), -1) # 2:<S>
 
             # Load vocabulary    
@@ -33,7 +35,17 @@ class Graph():
             
             # Encoder
             with tf.variable_scope("encoder"):
-                ## Embedding
+                '''
+                self.x is a tensor of size [batch_size, maxlen].
+                Every row in self.x is a sentence of length maxlen,
+                and every sentence is right-padded with zeros.
+                The words in the sentences are represented by integers.
+                Embedding replaces the integers with matrices 
+                of size 1 x num_units = 1 x hp.hidden_units.
+                These matrices have values that are trainable, but
+                the same word integer always maps to the same matrix.
+                '''
+                # Embedding
                 self.enc = embedding(self.x, 
                                       vocab_size=len(de2idx), 
                                       num_units=hp.hidden_units, 
@@ -48,6 +60,24 @@ class Graph():
                                       scale=False,
                                       scope="enc_pe")
                 else:
+                    '''
+                    tf.shape(self.x)[1] = max sentence length
+                    tf.range(tf.shape(self.x)[1]) = [0, 1, 2, ..., max sentence length]
+                    tf.expand_dims(tf.range(tf.shape(self.x)[1]), 0) = [[0, 1, 2, ..., max sentence length]] (a matrix with one row and n columns)
+                    tf.shape(self.x)[0] = batch size
+                    tf.tile([0, 1, 2, ..., max sentence length]], [batch_size, 1])
+                        = a 2D matrix, with batch_size rows. each row is [0, 1, 2, ..., max sentence length].
+                        =   [[0 1 ... max_sent.]
+                                    ...
+                             [0 1 ... max_sent.]
+                             [0 1 ... max_sent.]]
+                    By putting this through the embedding function, every element
+                    of the above matrix is replaced with a vector of length hp.hidden_units.
+                    So, the ultimate effect is that every word (represented by a vector)
+                    in self.enc has a vector added to it depending on it's position in
+                    the sentence. This vector is trainable, and is always the same for the 
+                    same position in the sentence.
+                    '''
                     self.enc += embedding(tf.tile(tf.expand_dims(tf.range(tf.shape(self.x)[1]), 0), [tf.shape(self.x)[0], 1]),
                                       vocab_size=hp.maxlen, 
                                       num_units=hp.hidden_units, 
@@ -62,6 +92,11 @@ class Graph():
                                             training=tf.convert_to_tensor(is_training))
                 
                 ## Blocks
+                '''
+                Remember that self.enc is the output of the encoder,
+                so adding more and more blocks on top of it is just 
+                building the encoder.
+                '''
                 for i in range(hp.num_blocks):
                     with tf.variable_scope("num_blocks_{}".format(i)):
                         ### Multihead Attention
@@ -79,6 +114,7 @@ class Graph():
             # Decoder
             with tf.variable_scope("decoder"):
                 ## Embedding
+                # Same as input, essentially.
                 self.dec = embedding(self.decoder_inputs, 
                                       vocab_size=len(en2idx), 
                                       num_units=hp.hidden_units,
@@ -86,6 +122,7 @@ class Graph():
                                       scope="dec_embed")
                 
                 ## Positional Encoding
+                # Same as input, essentially.
                 if hp.sinusoid:
                     self.dec += positional_encoding(self.decoder_inputs,
                                       vocab_size=hp.maxlen, 
@@ -133,9 +170,14 @@ class Graph():
                         self.dec = feedforward(self.dec, num_units=[4*hp.hidden_units, hp.hidden_units])
                 
             # Final linear projection
+            # Final dimension is vocabulary size of english.
             self.logits = tf.layers.dense(self.dec, len(en2idx))
+            # Select the most likely word from the final dimension
             self.preds = tf.to_int32(tf.arg_max(self.logits, dimension=-1))
+            # tf.to_float(tf.not_equal([0, 1, 2, 3], 0)) = [0. 1. 1. 1.]
+            # self.istarget is a mask?
             self.istarget = tf.to_float(tf.not_equal(self.y, 0))
+            # self.acc is a value from 0 to 1 of how many of the output words match y.
             self.acc = tf.reduce_sum(tf.to_float(tf.equal(self.preds, self.y))*self.istarget)/ (tf.reduce_sum(self.istarget))
             tf.summary.scalar('acc', self.acc)
                 

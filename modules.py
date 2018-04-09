@@ -101,7 +101,18 @@ def embedding(inputs,
       [ 1.22204471 -0.96587461]]]    
     ```    
     '''
-    with tf.variable_scope(scope, reuse=reuse):
+        '''
+        Lookup table is simply a tensor with trainable values.
+        It's initialized with some fancy values, but I suppose 
+        that doesn't really matter since it's going to be 
+        optimized by gradient descent anyway(?).
+        xavier_initializer just helps it out at the start.
+        get_variable gets existing or creates new if none exists.
+        lookup_table = a matrix with a row of length num_units for every word.
+        Note that reuse is set to None by default, which inherits from the 
+        outer scope. As every call uses a different scope (given by 
+        the 'scope' parameter), the variable is never reused anyway.
+        '''
         lookup_table = tf.get_variable('lookup_table',
                                        dtype=tf.float32,
                                        shape=[vocab_size, num_units],
@@ -109,6 +120,12 @@ def embedding(inputs,
         if zero_pad:
             lookup_table = tf.concat((tf.zeros(shape=[1, num_units]),
                                       lookup_table[1:, :]), 0)
+        '''
+        Outputs is equal to inputs, but every element (1x1 int (word)) is replaced 
+        by the corresponding element (1xn matrix) from the lookup table.
+        outputs[i] = lookup_table[inputs[i], :]
+        So, the dimension of outputs is 1 higher than the dimension of input.
+        '''
         outputs = tf.nn.embedding_lookup(lookup_table, inputs)
         
         if scale:
