@@ -255,9 +255,23 @@ class Transformer():
             tf.summary.scalar('mean_loss', self.mean_loss)
             self.merged = tf.summary.merge_all()
 
+            
+    # just inialize a tensorflow variable to use it as global step counter
+    def init_global_step(self):
+        # DON'T forget to add the global step tensor to the tensorflow trainer
+        with tf.variable_scope('global_step'):
+            self.global_step_tensor = tf.Variable(0, trainable=False, name='global_step')
+            
+    def init_saver(self):
+        # here you initalize the tensorflow saver that will be used in saving the checkpoints.
+        self.saver = tf.train.Saver(max_to_keep=self.config.max_to_keep)
+        
+        
+        
 if __name__ == '__main__':                
     
     config = {
+    "max_to_keep": 10,
         "tra": {
             "hidden_units": 32,
             "num_blocks": 2,
