@@ -18,7 +18,7 @@ from pprint import pprint
 import random, math
 import matplotlib.pyplot as plt
 
-def plot(sess, y):
+def plot(sess, t):
     x, y = generate_x_y_data_v1(isTrain = False, batch_size = 1)
     preds = np.zeros_like(y)
     
@@ -267,7 +267,7 @@ if __name__ == '__main__':
     with tf.Session(graph=g.graph) as sess:
         sess.run(tf.global_variables_initializer())
         for t in range(100000): 
-            if(t % 100):
+            if(t % 25 == 0):
                 plot(sess, t)
             x, y = generate_x_y_data_v1(isTrain = False, batch_size = 100)
             # pprint(x)
