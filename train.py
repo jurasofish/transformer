@@ -34,7 +34,7 @@ def plot(sess, y):
     fig, ax = plt.subplots()
     ax.plot(list(range(10)), y[0, :, 0], color='red')
     ax.plot(list(range(10)), preds[0, :, 0], color='green')
-    fig.savefig(str(t) + "test.png")
+    fig.savefig('img/' + str(t) + "test.png")
     # plt.show()
     
     
