@@ -256,8 +256,16 @@ class Transformer():
 
 if __name__ == '__main__':                
     
+    config = {
+        "tra": {
+            "stateSize": 10,
+            "depth": 2,
+            "cellType": "GRu",
+            "attn_mech_units": 10,
+            "attn_cell_lyr_sze": 20 } }
+
     # Construct graph
-    model = Transformer(config={}); print("Graph loaded")
+    model = Transformer(config=config); print("Graph loaded")
 
     with tf.Session(graph=model.graph) as sess:
         sess.run(tf.global_variables_initializer())
