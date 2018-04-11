@@ -269,7 +269,7 @@ if __name__ == '__main__':
         for t in range(100000): 
             if(t % 100):
                 plot(sess, t)
-            x, y = generate_x_y_data_v1(isTrain = False, batch_size = 250)
+            x, y = generate_x_y_data_v1(isTrain = False, batch_size = 100)
             # pprint(x)
             feed_dict = {g.x: x, g.y: y}
             _, loss = sess.run([g.train_op, g.mean_loss], feed_dict)
