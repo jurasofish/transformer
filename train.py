@@ -99,8 +99,7 @@ class Transformer():
         self.init_saver()
     
     def build_model(self):
-        self.graph = tf.Graph()
-        with self.graph.as_default():
+        with tf.variable_scope('Transformer'):
 
         
             sample_x, sample_y = generate_x_y_data_v1(True, 3)
@@ -286,20 +285,20 @@ if __name__ == '__main__':
             "num_heads": 2,
             "dropout_rate": 0.1 } }
     config = munchify(config)
-
-    # Construct graph
+    sess = tf.InteractiveSession()
     model = Transformer(config=config); print("Graph loaded")
+    sess.run(tf.global_variables_initializer())
 
-    with tf.Session(graph=model.graph) as sess:
-        sess.run(tf.global_variables_initializer())
-        for t in range(100000): 
-            if(t % 25 == 0):
-                plot(sess, t)
-            x, y = generate_x_y_data_v1(isTrain = False, batch_size = 100)
-            # pprint(x)
-            feed_dict = {model.x: x, model.y: y}
-            _, loss = sess.run([model.train_op, model.mean_loss], feed_dict)
-            pprint(loss)
+
+    sess.run(tf.global_variables_initializer())
+    for t in range(100000): 
+        if(t % 25 == 0):
+            plot(sess, t)
+        x, y = generate_x_y_data_v1(isTrain = False, batch_size = 100)
+        # pprint(x)
+        feed_dict = {model.x: x, model.y: y}
+        _, loss = sess.run([model.train_op, model.mean_loss], feed_dict)
+        pprint(loss)
 
     
     print("Done")    
