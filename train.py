@@ -17,6 +17,7 @@ from tqdm import tqdm
 from pprint import pprint
 import random, math
 import matplotlib.pyplot as plt
+from munch import *
 
 def plot(sess, t):
     x, y = generate_x_y_data_v1(isTrain = False, batch_size = 1)
@@ -258,11 +259,11 @@ if __name__ == '__main__':
     
     config = {
         "tra": {
-            "stateSize": 10,
-            "depth": 2,
-            "cellType": "GRu",
-            "attn_mech_units": 10,
-            "attn_cell_lyr_sze": 20 } }
+            "hidden_units": 32,
+            "num_blocks": 2,
+            "num_heads": 2,
+            "dropout_rate": 0.1 } }
+    config = munchify(config)
 
     # Construct graph
     model = Transformer(config=config); print("Graph loaded")
