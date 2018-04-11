@@ -23,9 +23,9 @@ def plot(sess, t):
     preds = np.zeros_like(y)
     
     
-    for j in range(g.y_seq_length):
-        feed_dict = {g.x: x, g.y: preds}
-        _preds = sess.run(g.pred, feed_dict)
+    for j in range(model.y_seq_length):
+        feed_dict = {model.x: x, model.y: preds}
+        _preds = sess.run(model.pred, feed_dict)
         preds[0, j, 0] = _preds[0, j, 0]
     
     # pprint(y)
@@ -88,8 +88,8 @@ def generate_x_y_data_v1(isTrain, batch_size):
     
 
 
-class Graph():
-    def __init__(self, is_training=True):
+class Transformer():
+    def __init__(self, config, is_training=True):
         self.graph = tf.Graph()
         with self.graph.as_default():
 
@@ -262,17 +262,17 @@ class Graph():
 if __name__ == '__main__':                
     
     # Construct graph
-    g = Graph("train"); print("Graph loaded")
+    model = Transformer(config={}, is_training="train"); print("Graph loaded")
 
-    with tf.Session(graph=g.graph) as sess:
+    with tf.Session(graph=model.graph) as sess:
         sess.run(tf.global_variables_initializer())
         for t in range(100000): 
             if(t % 25 == 0):
                 plot(sess, t)
             x, y = generate_x_y_data_v1(isTrain = False, batch_size = 100)
             # pprint(x)
-            feed_dict = {g.x: x, g.y: y}
-            _, loss = sess.run([g.train_op, g.mean_loss], feed_dict)
+            feed_dict = {model.x: x, model.y: y}
+            _, loss = sess.run([model.train_op, model.mean_loss], feed_dict)
             pprint(loss)
 
     
