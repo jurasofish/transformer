@@ -134,13 +134,13 @@ class Transformer():
             with tf.variable_scope("encoder"):
                 '''Use conv1d to embed each time step, as per paper "attend and diagnose" '''
                 # print('before ff:', self.x)
-                self.enc = embed_conv(inputs=self.x, num_units=hp.hidden_units, scope="enc_embed_conv")
+                self.enc = embed_conv(inputs=self.x, num_units=config.tra.hidden_units, scope="enc_embed_conv")
                 # print('after ff: ', self.enc)
                 
                 ## Positional Encoding
-                if hp.sinusoid:
+                if config.tra.sinusoid:
                     self.enc += positional_encoding(self.x,
-                                      num_units=hp.hidden_units, 
+                                      num_units=config.tra.hidden_units, 
                                       zero_pad=False, 
                                       scale=False,
                                       scope="enc_pe")
@@ -165,7 +165,7 @@ class Transformer():
                     '''
                     self.enc += embedding(tf.tile(tf.expand_dims(tf.range(tf.shape(self.x)[1]), 0), [tf.shape(self.x)[0], 1]),
                                       vocab_size=x_seq_length, 
-                                      num_units=hp.hidden_units, 
+                                      num_units=config.tra.hidden_units, 
                                       zero_pad=False, 
                                       scale=False,
                                       scope="enc_pe")
@@ -173,7 +173,7 @@ class Transformer():
                 
                 ## Dropout
                 self.enc = tf.layers.dropout(self.enc, 
-                                            rate=hp.dropout_rate)
+                                            rate=config.tra.dropout_rate)
                 
                 
                 ## Blocks
@@ -182,18 +182,18 @@ class Transformer():
                 so adding more and more blocks on top of it is just 
                 building the encoder.
                 '''
-                for i in range(hp.num_blocks):
+                for i in range(config.tra.num_blocks):
                     with tf.variable_scope("num_blocks_{}".format(i)):
                         ### Multihead Attention
                         self.enc = multihead_attention(queries=self.enc, 
                                                         keys=self.enc, 
-                                                        num_units=hp.hidden_units, 
-                                                        num_heads=hp.num_heads, 
-                                                        dropout_rate=hp.dropout_rate,
+                                                        num_units=config.tra.hidden_units, 
+                                                        num_heads=config.tra.num_heads, 
+                                                        dropout_rate=config.tra.dropout_rate,
                                                         causality=False)
                         
                         ### Feed Forward
-                        self.enc = feedforward(self.enc, num_units=[4*hp.hidden_units, hp.hidden_units])
+                        self.enc = feedforward(self.enc, num_units=[4*config.tra.hidden_units, config.tra.hidden_units])
             
             # Decoder
             with tf.variable_scope("decoder"):
@@ -204,49 +204,49 @@ class Transformer():
                 
                 ## Positional Encoding
                 # Same as input, essentially.
-                if hp.sinusoid:
+                if config.tra.sinusoid:
                     self.dec += positional_encoding(self.decoder_inputs,
-                                      vocab_size=hp.maxlen, 
-                                      num_units=hp.hidden_units, 
+                                      vocab_size=config.tra.maxlen, 
+                                      num_units=config.tra.hidden_units, 
                                       zero_pad=False, 
                                       scale=False,
                                       scope="dec_pe")
                 else:
                     self.dec += embedding(tf.tile(tf.expand_dims(tf.range(tf.shape(self.decoder_inputs)[1]), 0), [tf.shape(self.decoder_inputs)[0], 1]),
                                       vocab_size=y_seq_length, 
-                                      num_units=hp.hidden_units, 
+                                      num_units=config.tra.hidden_units, 
                                       zero_pad=False, 
                                       scale=False,
                                       scope="dec_pe")
                 
                 ## Dropout
                 self.dec = tf.layers.dropout(self.dec, 
-                                            rate=hp.dropout_rate)
+                                            rate=config.tra.dropout_rate)
                 
                 
                 ## Blocks
-                for i in range(hp.num_blocks):
+                for i in range(config.tra.num_blocks):
                     with tf.variable_scope("num_blocks_{}".format(i)):
                         ## Multihead Attention ( self-attention)
                         self.dec = multihead_attention(queries=self.dec, 
                                                         keys=self.dec, 
-                                                        num_units=hp.hidden_units, 
-                                                        num_heads=hp.num_heads, 
-                                                        dropout_rate=hp.dropout_rate,
+                                                        num_units=config.tra.hidden_units, 
+                                                        num_heads=config.tra.num_heads, 
+                                                        dropout_rate=config.tra.dropout_rate,
                                                         causality=True, 
                                                         scope="self_attention")
                         
                         ## Multihead Attention ( vanilla attention)
                         self.dec = multihead_attention(queries=self.dec, 
                                                         keys=self.enc, 
-                                                        num_units=hp.hidden_units, 
-                                                        num_heads=hp.num_heads,
-                                                        dropout_rate=hp.dropout_rate,
+                                                        num_units=config.tra.hidden_units, 
+                                                        num_heads=config.tra.num_heads,
+                                                        dropout_rate=config.tra.dropout_rate,
                                                         causality=False,
                                                         scope="vanilla_attention")
                         
                         ## Feed Forward
-                        self.dec = feedforward(self.dec, num_units=[4*hp.hidden_units, hp.hidden_units])
+                        self.dec = feedforward(self.dec, num_units=[4*config.tra.hidden_units, config.tra.hidden_units])
                 
             # Final linear projection
             # Final dimension is vocabulary size of english.
@@ -255,7 +255,7 @@ class Transformer():
             pprint(self.pred)
             self.mean_loss = tf.reduce_sum(tf.square(self.pred - self.y))
 
-            self.optimizer = tf.train.AdamOptimizer(learning_rate=hp.lr, beta1=0.9, beta2=0.98, epsilon=1e-8)
+            self.optimizer = tf.train.AdamOptimizer(learning_rate=config.lr, beta1=0.9, beta2=0.98, epsilon=1e-8)
             self.train_op = self.optimizer.minimize(self.mean_loss)
                
             # Summary 
@@ -279,11 +279,13 @@ if __name__ == '__main__':
     
     config = {
     "max_to_keep": 10,
+	"lr": 0.000075,
         "tra": {
             "hidden_units": 32,
             "num_blocks": 2,
             "num_heads": 2,
-            "dropout_rate": 0.1 } }
+            "dropout_rate": 0.1,
+            "sinusoid": False} }
     config = munchify(config)
     sess = tf.InteractiveSession()
     model = Transformer(config=config); print("Graph loaded")
