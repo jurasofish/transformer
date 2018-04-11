@@ -200,7 +200,7 @@ class Transformer():
                 ## Embedding
                 # Same as input, essentially.
                 '''Use conv1d to embed each time step, as per paper "attend and diagnose" '''
-                self.dec = embed_conv(inputs=self.decoder_inputs, num_units=hp.hidden_units, scope="dec_embed_conv")
+                self.dec = embed_conv(inputs=self.decoder_inputs, num_units=config.tra.hidden_units, scope="dec_embed_conv")
                 
                 ## Positional Encoding
                 # Same as input, essentially.
