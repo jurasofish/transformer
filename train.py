@@ -162,12 +162,12 @@ class Graph():
                                       scale=False,
                                       scope="enc_pe")
                     
-                '''
+                
                 ## Dropout
                 self.enc = tf.layers.dropout(self.enc, 
                                             rate=hp.dropout_rate, 
                                             training=tf.convert_to_tensor(is_training))
-                '''
+                
                 
                 ## Blocks
                 '''
@@ -212,12 +212,12 @@ class Graph():
                                       zero_pad=False, 
                                       scale=False,
                                       scope="dec_pe")
-                '''
+                
                 ## Dropout
                 self.dec = tf.layers.dropout(self.dec, 
                                             rate=hp.dropout_rate, 
                                             training=tf.convert_to_tensor(is_training))
-                '''
+                
                 
                 ## Blocks
                 for i in range(hp.num_blocks):
