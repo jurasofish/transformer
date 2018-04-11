@@ -249,13 +249,13 @@ class Transformer():
             pprint(self.dec)
             self.pred = tf.layers.dense(self.dec, y_var_count)
             pprint(self.pred)
-            self.mean_loss = tf.reduce_sum(tf.square(self.pred - self.y))
+            self.loss = tf.reduce_sum(tf.square(self.pred - self.y))
 
             self.optimizer = tf.train.AdamOptimizer(learning_rate=config.lr, beta1=0.9, beta2=0.98, epsilon=1e-8)
-            self.train_op = self.optimizer.minimize(self.mean_loss)
+            self.train_op = self.optimizer.minimize(self.loss)
                
             # Summary 
-            tf.summary.scalar('mean_loss', self.mean_loss)
+            tf.summary.scalar('loss', self.loss)
             self.merged = tf.summary.merge_all()
 
             
@@ -295,7 +295,7 @@ if __name__ == '__main__':
         x, y = generate_x_y_data_v1(isTrain = False, batch_size = 100)
         # pprint(x)
         feed_dict = {model.x: x, model.y: y}
-        _, loss = sess.run([model.train_op, model.mean_loss], feed_dict)
+        _, loss = sess.run([model.train_op, model.loss], feed_dict)
         pprint(loss)
 
     
