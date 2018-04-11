@@ -95,8 +95,8 @@ class Graph():
 
         
             sample_x, sample_y = generate_x_y_data_v1(True, 3)
-            pprint(sample_x)
-            pprint(sample_y)
+            # pprint(sample_x)
+            # pprint(sample_y)
             x_seq_length = sample_x.shape[1]
             x_var_count = sample_x.shape[2]
             y_seq_length = len(sample_y[0, :])
@@ -125,9 +125,9 @@ class Graph():
             # Encoder
             with tf.variable_scope("encoder"):
                 '''Use conv1d to embed each time step, as per paper "attend and diagnose" '''
-                print('before ff:', self.x)
+                # print('before ff:', self.x)
                 self.enc = embed_conv(inputs=self.x, num_units=hp.hidden_units, scope="enc_embed_conv")
-                print('after ff: ', self.enc)
+                # print('after ff: ', self.enc)
                 
                 ## Positional Encoding
                 if hp.sinusoid:
