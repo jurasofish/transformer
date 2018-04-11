@@ -90,7 +90,15 @@ def generate_x_y_data_v1(isTrain, batch_size):
 
 
 class Transformer():
+
     def __init__(self, config):
+        self.config = config
+        # init the global step
+        self.init_global_step()
+        self.build_model()
+        self.init_saver()
+    
+    def build_model(self):
         self.graph = tf.Graph()
         with self.graph.as_default():
 
