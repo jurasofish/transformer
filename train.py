@@ -89,7 +89,7 @@ def generate_x_y_data_v1(isTrain, batch_size):
 
 
 class Transformer():
-    def __init__(self, config, is_training=True):
+    def __init__(self, config):
         self.graph = tf.Graph()
         with self.graph.as_default():
 
@@ -165,8 +165,7 @@ class Transformer():
                 
                 ## Dropout
                 self.enc = tf.layers.dropout(self.enc, 
-                                            rate=hp.dropout_rate, 
-                                            training=tf.convert_to_tensor(is_training))
+                                            rate=hp.dropout_rate)
                 
                 
                 ## Blocks
@@ -183,7 +182,6 @@ class Transformer():
                                                         num_units=hp.hidden_units, 
                                                         num_heads=hp.num_heads, 
                                                         dropout_rate=hp.dropout_rate,
-                                                        is_training=is_training,
                                                         causality=False)
                         
                         ### Feed Forward
@@ -215,8 +213,7 @@ class Transformer():
                 
                 ## Dropout
                 self.dec = tf.layers.dropout(self.dec, 
-                                            rate=hp.dropout_rate, 
-                                            training=tf.convert_to_tensor(is_training))
+                                            rate=hp.dropout_rate)
                 
                 
                 ## Blocks
@@ -228,7 +225,6 @@ class Transformer():
                                                         num_units=hp.hidden_units, 
                                                         num_heads=hp.num_heads, 
                                                         dropout_rate=hp.dropout_rate,
-                                                        is_training=is_training,
                                                         causality=True, 
                                                         scope="self_attention")
                         
@@ -238,7 +234,6 @@ class Transformer():
                                                         num_units=hp.hidden_units, 
                                                         num_heads=hp.num_heads,
                                                         dropout_rate=hp.dropout_rate,
-                                                        is_training=is_training, 
                                                         causality=False,
                                                         scope="vanilla_attention")
                         
@@ -262,7 +257,7 @@ class Transformer():
 if __name__ == '__main__':                
     
     # Construct graph
-    model = Transformer(config={}, is_training="train"); print("Graph loaded")
+    model = Transformer(config={}); print("Graph loaded")
 
     with tf.Session(graph=model.graph) as sess:
         sess.run(tf.global_variables_initializer())
