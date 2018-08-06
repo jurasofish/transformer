@@ -1,3 +1,5 @@
+# Transformer modified for time series forecasting. Original readme below.
+----------------
 # A TensorFlow Implementation of the Transformer: Attention Is All You Need
 
 ## Requirements
